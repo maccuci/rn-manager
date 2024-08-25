@@ -1,12 +1,12 @@
-import Navigation from "@/navigation";
-import { activeThemeAtom } from "@/states/theme";
 import { NavigationContainer } from "@react-navigation/native";
 import { ThemeProvider } from "@shopify/restyle";
 import { useAtom } from "jotai";
 import React from "react";
 import { StatusBar } from "react-native";
+import { activeThemeAtom } from "./states/theme";
+import Navigation from "./navigation";
 
-export default function App() {
+const RenderApp = () => {
   const [activeTheme] = useAtom(activeThemeAtom);
 
   return (
@@ -18,3 +18,5 @@ export default function App() {
     </NavigationContainer>
   );
 };
+
+export default RenderApp;
