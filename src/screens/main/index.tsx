@@ -1,13 +1,13 @@
 import Container from "@/atoms/container";
 import ResponsiveLayout from "@/components/responsive-layout";
-import ScreenTest from "./test";
+import MobileMainScreen from "./mobile";
 
 export default function MainScreen() {
   return (
     <Container>
       <ResponsiveLayout
-        renderOnPhone={() => <ScreenTest />}
-        renderOnTablet={() => <ScreenTest />}
+        renderOnPhone={() => <MobileMainScreen />}
+        renderOnTablet={() => <MobileMainScreen />}
       />
     </Container>
   );

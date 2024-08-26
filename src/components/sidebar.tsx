@@ -1,58 +1,89 @@
-import Box from "@/atoms/box";
-import activeThemeId from "@/states/theme";
-import { Theme, ThemeMeta, ThemeNames, themes } from "@/themes";
-import { DrawerNavigationHelpers } from "@react-navigation/drawer/lib/typescript/src/types";
+import React, { useCallback } from "react";
+import { SafeAreaView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { createBox } from "@shopify/restyle";
-import { useAtom } from "jotai";
-import { useCallback } from "react";
-import { FlatList, FlatListProps, SafeAreaView } from "react-native";
-import ThemeListItem from "./theme-list-item";
-import Text from "@/atoms/text";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
 
-const StyledFlatList = createBox<Theme, FlatListProps<ThemeMeta>>(FlatList);
+import Box from "@/atoms/box";
+import Text from "@/atoms/text";
+import { TouchableOpacity } from "@/atoms/touchable";
+import FeatherIcon from "./icon";
+
+type RootDrawerParamList = {
+  Appointment: undefined;
+  Settings: undefined;
+};
 
 const Sidebar = () => {
-  const navigation = useNavigation<DrawerNavigationHelpers>();
-  const [, setActiveTheme] = useAtom(activeThemeId);
+  const navigation = useNavigation<DrawerNavigationProp<RootDrawerParamList>>();
 
-  const handleThemeItemPress = useCallback(
-    (selectedThemeId: ThemeNames) => {
-      setActiveTheme(selectedThemeId);
+  const goTo = useCallback(
+    (screen: keyof RootDrawerParamList) => {
+      if (navigation.navigate) {
+        navigation.navigate(screen);
+      } else {
+        console.warn("Navigation method not available");
+      }
     },
     [navigation]
   );
 
-  const renderThemeItem = useCallback(
-    ({ item }: { item: ThemeMeta }) => {
-      return <ThemeListItem theme={item} onPress={handleThemeItemPress} />;
-    },
-    [handleThemeItemPress]
-  );
   return (
     <Box flex={1} bg="$sidebarBackground">
       <SafeAreaView>
         <Box
-          alignItems="flex-start"
-          pl="md"
-          pb="sm"
-          mt="xs"
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="space-between"
+          paddingHorizontal="lg"
+          paddingVertical="md"
           borderBottomColor="$sidebarSeparator"
           borderBottomWidth={1}
-        ></Box>
+        >
+          <Text variant="navbar" color="$sidebarForeground">
+            Gerenciador de Consultório
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              goTo("Settings");
+            }}
+          >
+            <FeatherIcon name="settings" size={24} color="$sidebarForeground" />
+          </TouchableOpacity>
+        </Box>
       </SafeAreaView>
-      <StyledFlatList
-        ListHeaderComponent={() => (
-          <Box p="lg" alignItems="flex-start">
-            <Text color="$sidebarForeground" fontWeight="bold">
-              Temas
-            </Text>
-          </Box>
-        )}
-        data={themes}
-        keyExtractor={(t: ThemeMeta) => t.id}
-        renderItem={renderThemeItem}
-      />
+
+      <Box paddingVertical="md">
+        <TouchableOpacity
+          onPress={() => goTo("Appointment")}
+          flexDirection="row"
+          alignItems="center"
+          paddingHorizontal="lg"
+          paddingVertical="sm"
+          marginBottom="xs"
+        >
+          <FeatherIcon name="calendar" size={20} color="$sidebarForeground" />
+          <Text variant="navbar" color="$sidebarForeground" marginLeft="sm">
+            Consultas
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => goTo("Appointment")}
+          flexDirection="row"
+          alignItems="center"
+          paddingHorizontal="lg"
+          paddingVertical="sm"
+          marginBottom="xs"
+        >
+          <FeatherIcon
+            name="dollar-sign"
+            size={20}
+            color="$sidebarForeground"
+          />
+          <Text variant="navbar" color="$sidebarForeground" marginLeft="sm">
+            Financeiro
+          </Text>
+        </TouchableOpacity>
+      </Box>
     </Box>
   );
 };

@@ -2,12 +2,16 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigatorScreenParams } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import useResponsiveLayout from "./hooks/useResponsiveLayout";
-import MainScreen from "./screens";
+import MainScreen from "./screens/main";
 import useDrawerEnabled from "./hooks/useDrawerEnabled";
 import Sidebar from "./components/sidebar";
+import AppointmentScreenTest from "./screens/appointment";
+import SettingsScreen from "./screens/settings";
 
 export type HomeDrawerParamList = {
   Main: {};
+  Appointment: undefined;
+  Settings: undefined;
 };
 
 export type RootStackParamList = {
@@ -16,6 +20,7 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Drawer = createDrawerNavigator<HomeDrawerParamList>();
+
 function Home() {
   const { isTablet } = useResponsiveLayout();
   const swipeEnabled = useDrawerEnabled();
@@ -36,6 +41,20 @@ function Home() {
       <Drawer.Screen
         name="Main"
         component={MainScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Drawer.Screen
+        name="Appointment"
+        component={AppointmentScreenTest}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Drawer.Screen
+        name="Settings"
+        component={SettingsScreen}
         options={{
           headerShown: false,
         }}
