@@ -73,6 +73,9 @@ const theme = createTheme({
     },
     navbar: {
       fontSize: 20
+    },
+    title: {
+      fontSize: 24
     }
   },
   barVariants: {

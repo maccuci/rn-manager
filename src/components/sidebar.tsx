@@ -66,23 +66,6 @@ const Sidebar = () => {
             Consultas
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => goTo("Appointment")}
-          flexDirection="row"
-          alignItems="center"
-          paddingHorizontal="lg"
-          paddingVertical="sm"
-          marginBottom="xs"
-        >
-          <FeatherIcon
-            name="dollar-sign"
-            size={20}
-            color="$sidebarForeground"
-          />
-          <Text variant="navbar" color="$sidebarForeground" marginLeft="sm">
-            Financeiro
-          </Text>
-        </TouchableOpacity>
       </Box>
     </Box>
   );

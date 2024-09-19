@@ -17,6 +17,8 @@ import { HeaderBar } from "@/components/header";
 import { HomeDrawerParamList, RootStackParamList } from "@/navigation";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import PDFGenerator from "@/components/generate-pdf";
+import { useAppointments } from "@/hooks/useAppointments";
 
 const StyledFlatList = createBox<Theme, FlatListProps<ThemeMeta>>(FlatList);
 
@@ -27,6 +29,7 @@ const SettingsScreen = () => {
   > = useNavigation();
   const [, setActiveTheme] = useAtom(activeThemeId);
   const theme = useTheme<Theme>();
+  const { appointments } = useAppointments();
 
   const handleThemeItemPress = useCallback(
     (selectedThemeId: ThemeNames) => {
@@ -58,7 +61,7 @@ const SettingsScreen = () => {
           isOpen={navigation.isFocused()}
         />
       </Box>
-      <Box flex={1}>
+      <Box>
         <StyledFlatList
           ListHeaderComponent={() => (
             <Box paddingHorizontal="lg" paddingVertical="md">
@@ -72,6 +75,17 @@ const SettingsScreen = () => {
           renderItem={renderThemeItem}
           contentContainerStyle={{ paddingBottom: theme.spacing.lg }}
         />
+        <Box paddingHorizontal="lg" paddingVertical="md">
+          <Text
+            variant="navbar"
+            color="$sidebarForeground"
+            textAlign="center"
+            mb={"md"}
+          >
+            Abaixo você pode gerar um PDF com os dados das consultas.
+          </Text>
+          <PDFGenerator appointments={appointments} />
+        </Box>
       </Box>
     </Container>
   );
