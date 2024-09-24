@@ -42,28 +42,36 @@ const Sidebar = () => {
           <Text variant="navbar" color="$sidebarForeground">
             Gerenciador de Consultório
           </Text>
-          <TouchableOpacity
-            onPress={() => {
-              goTo("Settings");
-            }}
-          >
-            <FeatherIcon name="settings" size={24} color="$sidebarForeground" />
-          </TouchableOpacity>
         </Box>
       </SafeAreaView>
 
-      <Box paddingVertical="md">
+      <Box>
         <TouchableOpacity
           onPress={() => goTo("Appointment")}
           flexDirection="row"
           alignItems="center"
           paddingHorizontal="lg"
           paddingVertical="sm"
-          marginBottom="xs"
         >
           <FeatherIcon name="calendar" size={20} color="$sidebarForeground" />
           <Text variant="navbar" color="$sidebarForeground" marginLeft="sm">
             Consultas
+          </Text>
+        </TouchableOpacity>
+      </Box>
+
+      <Box paddingVertical="md">
+        <TouchableOpacity
+          onPress={() => goTo("Settings")}
+          flexDirection="row"
+          alignItems="center"
+          paddingHorizontal="lg"
+          paddingVertical="sm"
+          marginBottom="xs"
+        >
+          <FeatherIcon name="settings" size={20} color="$sidebarForeground" />
+          <Text variant="navbar" color="$sidebarForeground" marginLeft="sm">
+            Configurações
           </Text>
         </TouchableOpacity>
       </Box>

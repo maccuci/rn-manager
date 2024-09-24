@@ -3,7 +3,7 @@ import { ScrollView, Alert, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "@shopify/restyle";
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import Container from "@/atoms/container";
 import Text from "@/atoms/text";
@@ -15,14 +15,18 @@ import TextInput from "@/atoms/text-input";
 import { Appointment, useAppointments } from "@/hooks/useAppointments";
 
 export default function AppointmentScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { appointments, addAppointment, loadAppointments, deleteAppointment } = useAppointments();
-  const [newAppointment, setNewAppointment] = useState<Omit<Appointment, "id">>({
-    date: "",
-    appointmentType: "",
-    patient: "",
-    reason: "",
-  });
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { appointments, addAppointment, loadAppointments, deleteAppointment } =
+    useAppointments();
+  const [newAppointment, setNewAppointment] = useState<Omit<Appointment, "id">>(
+    {
+      date: "",
+      appointmentType: "",
+      patient: "",
+      reason: "",
+    }
+  );
   const [showDatePicker, setShowDatePicker] = useState(false);
   const theme = useTheme();
 
@@ -37,8 +41,14 @@ export default function AppointmentScreen() {
     }
 
     addAppointment(newAppointment);
-    setNewAppointment({ date: "", appointmentType: "", patient: "", reason: "" });
+    setNewAppointment({
+      date: "",
+      appointmentType: "",
+      patient: "",
+      reason: "",
+    });
 
+    Alert.alert("Consultas", "A consulta foi adicionada com sucesso.");
     loadAppointments();
   };
 
@@ -69,9 +79,18 @@ export default function AppointmentScreen() {
   };
 
   const onDateChange = (event: any, selectedDate: Date | undefined) => {
-    const currentDate = selectedDate || new Date();
-    setShowDatePicker(false);
-    setNewAppointment((prev) => ({ ...prev, date: currentDate.toISOString().split('T')[0] }));
+    if (selectedDate) {
+      const localDate = new Date(selectedDate);
+      localDate.setHours(localDate.getHours() + localDate.getTimezoneOffset() / 60);
+  
+      setShowDatePicker(false);
+      setNewAppointment((prev) => ({
+        ...prev,
+        date: localDate.toISOString().split("T")[0],
+      }));
+    } else {
+      setShowDatePicker(false);
+    }
   };
 
   return (
@@ -95,7 +114,15 @@ export default function AppointmentScreen() {
               placeholder="Data"
               color="black"
               backgroundColor="white"
-              value={newAppointment.date ? new Date(newAppointment.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
+              value={
+                newAppointment.date
+                  ? new Date(newAppointment.date).toLocaleDateString("pt-BR", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : ""
+              }
               editable={false}
               p="sm"
               borderRadius="md"
@@ -109,33 +136,64 @@ export default function AppointmentScreen() {
               onChange={onDateChange}
             />
           )}
-            <Text>Tipo de Consulta</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16, marginTop: 6 }}>
+          <Text>Tipo de Consulta</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginBottom: 16,
+              marginTop: 6,
+            }}
+          >
             <TouchableOpacity
               onPress={() => handleInputChange("appointmentType", "plano")}
               style={{
-                backgroundColor: newAppointment.appointmentType === "plano" ? "black" : "white",
+                backgroundColor:
+                  newAppointment.appointmentType === "plano"
+                    ? "black"
+                    : "white",
                 padding: 10,
                 borderRadius: 5,
                 flex: 1,
                 marginRight: 5,
-                alignItems: 'center'
+                alignItems: "center",
               }}
             >
-              <Text style={{ color: newAppointment.appointmentType === "plano" ? "white" : "black" }}>Plano</Text>
+              <Text
+                style={{
+                  color:
+                    newAppointment.appointmentType === "plano"
+                      ? "white"
+                      : "black",
+                }}
+              >
+                Plano
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => handleInputChange("appointmentType", "avulsa")}
+              onPress={() => handleInputChange("appointmentType", "particular")}
               style={{
-                backgroundColor: newAppointment.appointmentType === "avulsa" ? "black" : "white",
+                backgroundColor:
+                  newAppointment.appointmentType === "particular"
+                    ? "black"
+                    : "white",
                 padding: 10,
                 borderRadius: 5,
                 flex: 1,
                 marginLeft: 5,
-                alignItems: 'center'
+                alignItems: "center",
               }}
             >
-              <Text style={{ color: newAppointment.appointmentType === "avulsa" ? "white" : "black" }}>Avulsa</Text>
+              <Text
+                style={{
+                  color:
+                    newAppointment.appointmentType === "particular"
+                      ? "white"
+                      : "black",
+                }}
+              >
+                Particular
+              </Text>
             </TouchableOpacity>
           </View>
           <TextInput
@@ -179,7 +237,10 @@ export default function AppointmentScreen() {
               mb="sm"
             >
               <Text variant="sidebar" color="black">
-                {`Data: ${new Date(appointment.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}`}
+                {`Data: ${new Date(appointment.date).toLocaleDateString(
+                  "pt-BR",
+                  { day: "numeric", month: "long", year: "numeric" }
+                )}`}
               </Text>
               <Text variant="sidebar" color="black">
                 {`Tipo de consulta: ${appointment.appointmentType}`}
@@ -193,7 +254,14 @@ export default function AppointmentScreen() {
               <TouchableOpacity
                 onPress={() => handleDeleteAppointment(appointment.id)}
               >
-                <Text variant="sidebar" color="red" textAlign="center" mt={"md"}>Excluir</Text>
+                <Text
+                  variant="sidebar"
+                  color="red"
+                  textAlign="center"
+                  mt={"md"}
+                >
+                  Excluir
+                </Text>
               </TouchableOpacity>
             </Box>
           ))}

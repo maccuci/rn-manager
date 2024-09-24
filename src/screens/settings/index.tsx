@@ -19,6 +19,8 @@ import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import PDFGenerator from "@/components/generate-pdf";
 import { useAppointments } from "@/hooks/useAppointments";
+import { TouchableOpacity } from "@/atoms/touchable";
+import FeatherIcon from "@/components/icon";
 
 const StyledFlatList = createBox<Theme, FlatListProps<ThemeMeta>>(FlatList);
 
@@ -49,17 +51,17 @@ const SettingsScreen = () => {
     navigation.goBack();
   }, []);
 
-  const handleSidebarToggle = useCallback(() => {
-    navigation.toggleDrawer();
-  }, []);
-
   return (
     <Container>
-      <Box marginBottom={"xxl"}>
-        <HeaderBar
-          onSidebarToggle={handleSidebarToggle}
-          isOpen={navigation.isFocused()}
-        />
+      <Box marginBottom={"lg"}>
+        <Box flexDirection="row" alignItems="center" padding="md">
+          <TouchableOpacity onPress={handleBackPress}>
+            <FeatherIcon name="arrow-left" size={24} color={"white"} />
+          </TouchableOpacity>
+          <Text variant="navbar" ml="md">
+            Configurações
+          </Text>
+        </Box>
       </Box>
       <Box>
         <StyledFlatList
@@ -76,13 +78,16 @@ const SettingsScreen = () => {
           contentContainerStyle={{ paddingBottom: theme.spacing.lg }}
         />
         <Box paddingHorizontal="lg" paddingVertical="md">
+          <Text variant="navbar" color="$sidebarForeground" mb={"md"}>
+            Data
+          </Text>
           <Text
-            variant="navbar"
+            variant="sidebar"
             color="$sidebarForeground"
             textAlign="center"
             mb={"md"}
           >
-            Abaixo você pode gerar um PDF com os dados das consultas.
+            Clique no botão abaixo para exportar os dados das consultas para um PDF.
           </Text>
           <PDFGenerator appointments={appointments} />
         </Box>

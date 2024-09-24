@@ -7,6 +7,8 @@ import useDrawerEnabled from "./hooks/useDrawerEnabled";
 import Sidebar from "./components/sidebar";
 import AppointmentScreenTest from "./screens/appointment";
 import SettingsScreen from "./screens/settings";
+import { useAppointments } from "./hooks/useAppointments";
+import { useEffect } from "react";
 
 export type HomeDrawerParamList = {
   Main: {};

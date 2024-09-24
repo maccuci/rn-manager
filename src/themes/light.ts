@@ -41,6 +41,7 @@ const theme = createTheme({
     yellow: p.yellow,
 
     $primary: p.blue70,
+    $secondary: p.navy20,
     $windowBackground: '#f0f0f0',
     $background: p.paper10,
     $foreground: p.paper900,

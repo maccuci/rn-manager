@@ -3,6 +3,7 @@ import Text from "@/atoms/text";
 import { HeaderBar } from "@/components/header";
 import {
   CompositeNavigationProp,
+  useFocusEffect,
   useNavigation,
 } from "@react-navigation/native";
 import { HomeDrawerParamList, RootStackParamList } from "@/navigation";
@@ -27,9 +28,11 @@ export default function MobileMainScreen() {
     navigation.toggleDrawer();
   }, [navigation]);
 
-  useEffect(() => {
-    loadAppointments();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadAppointments();
+    }, [loadAppointments])
+  );
 
   const screenWidth = Dimensions.get("window").width;
 
@@ -73,22 +76,19 @@ export default function MobileMainScreen() {
       return acc;
     }, {} as { [key: string]: number });
 
-    return Object.entries(typeCounts).map(([name, population]) => ({
-      name,
-      population,
-      color: getRandomColor(),
-      legendFontColor: "#7F7F7F",
-      legendFontSize: 15,
-    }));
-  };
+    const colors = ["#FFF", "#000"];
+    let colorIndex = 0;
 
-  const getRandomColor = () => {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
+    return Object.entries(typeCounts).map(([name, population]) => {
+      colorIndex = (colorIndex + 1) % colors.length;
+      return {
+        name,
+        population,
+        color: colors[colorIndex],
+        legendFontColor: "#7F7F7F",
+        legendFontSize: 15,
+      };
+    });
   };
 
   const appointmentsDataByMonth = groupAppointmentsByMonth(appointments);
@@ -100,10 +100,10 @@ export default function MobileMainScreen() {
         onSidebarToggle={handleSidebarToggle}
         isOpen={navigation.isFocused()}
       />
-      <Text variant="title" textDecorationLine="underline" textAlign="center" mb="xl" color="white">
+      <Text variant="title" textAlign="center" mb="xl" color="$primary">
         Seja bem-vindo ao aplicativo de gerenciamento de consultas
       </Text>
-      <Text variant="navbar" textAlign="center" color="white" mb="md">
+      <Text variant="navbar" textAlign="center" color="$primary" mb="md">
         Número de consultas por mês
       </Text>
       <LineChart
@@ -132,7 +132,7 @@ export default function MobileMainScreen() {
           borderRadius: 16,
         }}
       />
-      <Text variant="navbar" textAlign="center" color="white" mt="xxl">
+      <Text variant="navbar" textAlign="center" color="$primary" mt="xxl">
         Número dos tipos de consultas
       </Text>
       <PieChart
