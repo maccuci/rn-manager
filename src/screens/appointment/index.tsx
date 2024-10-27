@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { ScrollView, Alert, View } from "react-native";
+import { ScrollView, Alert, Platform } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "@shopify/restyle";
@@ -15,18 +15,14 @@ import TextInput from "@/atoms/text-input";
 import { Appointment, useAppointments } from "@/hooks/useAppointments";
 
 export default function AppointmentScreen() {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { appointments, addAppointment, loadAppointments, deleteAppointment } =
-    useAppointments();
-  const [newAppointment, setNewAppointment] = useState<Omit<Appointment, "id">>(
-    {
-      date: "",
-      appointmentType: "",
-      patient: "",
-      reason: "",
-    }
-  );
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { appointments, addAppointment, loadAppointments, deleteAppointment } = useAppointments();
+  const [newAppointment, setNewAppointment] = useState<Omit<Appointment, "id">>({
+    date: "",
+    appointmentType: "",
+    patient: "",
+    reason: "",
+  });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const theme = useTheme();
 
@@ -48,14 +44,11 @@ export default function AppointmentScreen() {
       reason: "",
     });
 
-    Alert.alert("Consultas", "A consulta foi adicionada com sucesso.");
+    Alert.alert("Sucesso", "A consulta foi adicionada com sucesso.");
     loadAppointments();
   };
 
-  const handleInputChange = (
-    field: keyof Omit<Appointment, "id">,
-    value: string
-  ) => {
+  const handleInputChange = (field: keyof Omit<Appointment, "id">, value: string) => {
     setNewAppointment((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -94,172 +87,242 @@ export default function AppointmentScreen() {
   };
 
   return (
-    <Container flex={1} backgroundColor="$primary">
-      <Box flexDirection="row" alignItems="center" padding="md">
+    <Container flex={1} backgroundColor="$background">
+      <Box 
+        flexDirection="row" 
+        alignItems="center" 
+        padding="lg"
+        backgroundColor="$primary"
+        shadowColor="$foreground"
+        shadowOffset={{ width: 0, height: 2 }}
+        shadowOpacity={0.1}
+        shadowRadius={8}
+        elevation={3}
+      >
         <TouchableOpacity onPress={handleBackPress}>
-          <FeatherIcon name="arrow-left" size={24} color={theme.colors.text} />
+          <FeatherIcon name="arrow-left" size={24} color="white" />
         </TouchableOpacity>
-        <Text variant="navbar" ml="md">
+        <Text variant="navbar" ml="md" color="white" fontSize={20}>
           Consultas
         </Text>
       </Box>
 
-      <ScrollView>
-        <Box padding="md">
-          <Text variant="navbar" mb="md">
-            Nova Consulta
-          </Text>
-          <TouchableOpacity onPress={showDatePickerHandler}>
-            <TextInput
-              placeholder="Data"
-              color="black"
-              backgroundColor="white"
-              value={
-                newAppointment.date
-                  ? new Date(newAppointment.date).toLocaleDateString("pt-BR", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })
-                  : ""
-              }
-              editable={false}
-              p="sm"
-              borderRadius="md"
-              mb="sm"
-            />
-          </TouchableOpacity>
-          {showDatePicker && (
-            <DateTimePicker
-              value={new Date(newAppointment.date || Date.now())}
-              mode="date"
-              onChange={onDateChange}
-            />
-          )}
-          <Text>Tipo de Consulta</Text>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginBottom: 16,
-              marginTop: 6,
-            }}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Box padding="lg">
+          <Box
+            backgroundColor="$fieldInputBackground"
+            padding="lg"
+            borderRadius="sm"
+            marginBottom="lg"
+            shadowColor="$foreground"
+            shadowOffset={{ width: 0, height: 2 }}
+            shadowOpacity={0.1}
+            shadowRadius={8}
+            elevation={3}
           >
-            <TouchableOpacity
-              onPress={() => handleInputChange("appointmentType", "plano")}
-              style={{
-                backgroundColor:
-                  newAppointment.appointmentType === "plano"
-                    ? "black"
-                    : "white",
-                padding: 10,
-                borderRadius: 5,
-                flex: 1,
-                marginRight: 5,
-                alignItems: "center",
-              }}
-            >
-              <Text
-                style={{
-                  color:
-                    newAppointment.appointmentType === "plano"
-                      ? "white"
-                      : "black",
-                }}
-              >
-                Plano
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => handleInputChange("appointmentType", "particular")}
-              style={{
-                backgroundColor:
-                  newAppointment.appointmentType === "particular"
-                    ? "black"
-                    : "white",
-                padding: 10,
-                borderRadius: 5,
-                flex: 1,
-                marginLeft: 5,
-                alignItems: "center",
-              }}
-            >
-              <Text
-                style={{
-                  color:
-                    newAppointment.appointmentType === "particular"
-                      ? "white"
-                      : "black",
-                }}
-              >
-                Particular
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <TextInput
-            placeholder="Nome do Paciente"
-            backgroundColor="white"
-            value={newAppointment.patient}
-            onChangeText={(value) => handleInputChange("patient", value)}
-            p="sm"
-            borderRadius="md"
-            mb="sm"
-          />
-          <TextInput
-            placeholder="Motivo da Consulta"
-            backgroundColor="white"
-            value={newAppointment.reason}
-            onChangeText={(value) => handleInputChange("reason", value)}
-            p="sm"
-            borderRadius="md"
-            mb="sm"
-          />
-          <TouchableOpacity
-            onPress={handleCreateAppointment}
-            backgroundColor="$primary"
-            p="md"
-            borderRadius="md"
-            mb="sm"
-            mt="md"
-          >
-            <Text textAlign="center">Criar Consulta</Text>
-          </TouchableOpacity>
+            <Text variant="navbar" color="$primary" fontSize={20} marginBottom="lg">
+              Nova Consulta
+            </Text>
 
-          <Text variant="navbar" mt="lg" mb="md">
+            <Box marginBottom="md">
+              <TouchableOpacity onPress={showDatePickerHandler}>
+                <Box
+                  backgroundColor="$fieldInputPlaceholderTextColor"
+                  padding="md"
+                  borderRadius="sm"
+                  flexDirection="row"
+                  alignItems="center"
+                >
+                  <FeatherIcon name="calendar" size={20} color={theme.colors.$primary} />
+                  <TextInput
+                    placeholder="Selecione a data"
+                    value={
+                      newAppointment.date
+                        ? new Date(newAppointment.date).toLocaleDateString("pt-BR", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })
+                        : ""
+                    }
+                    editable={false}
+                    flex={1}
+                    marginLeft="sm"
+                  />
+                </Box>
+              </TouchableOpacity>
+            </Box>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={new Date(newAppointment.date || Date.now())}
+                mode="date"
+                onChange={onDateChange}
+              />
+            )}
+
+            <Text color="$primary" marginBottom="sm">Tipo de Consulta</Text>
+            <Box
+              flexDirection="row"
+              justifyContent="space-between"
+              marginBottom="lg"
+            >
+              <TouchableOpacity
+                onPress={() => handleInputChange("appointmentType", "plano")}
+                style={{
+                  backgroundColor: newAppointment.appointmentType === "plano" 
+                    ? theme.colors.$primary 
+                    : theme.colors.$fieldInputPlaceholderTextColor,
+                  padding: theme.spacing.md,
+                  borderRadius: theme.borderRadii.sm,
+                  flex: 1,
+                  marginRight: theme.spacing.sm,
+                }}
+              >
+                <Text
+                  textAlign="center"
+                  color={newAppointment.appointmentType === "plano" ? "white" : "$primary"}
+                >
+                  Plano
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => handleInputChange("appointmentType", "particular")}
+                style={{
+                  backgroundColor: newAppointment.appointmentType === "particular" 
+                    ? theme.colors.$primary 
+                    : theme.colors.$fieldInputPlaceholderTextColor,
+                  padding: theme.spacing.md,
+                  borderRadius: theme.borderRadii.sm,
+                  flex: 1,
+                  marginLeft: theme.spacing.sm,
+                }}
+              >
+                <Text
+                  textAlign="center"
+                  color={newAppointment.appointmentType === "particular" ? "white" : "$primary"}
+                >
+                  Particular
+                </Text>
+              </TouchableOpacity>
+            </Box>
+
+            <Box marginBottom="md">
+              <Box
+                backgroundColor="$fieldInputPlaceholderTextColor"
+                padding="md"
+                borderRadius="sm"
+                flexDirection="row"
+                alignItems="center"
+                marginBottom="md"
+              >
+                <FeatherIcon name="user" size={20} color={theme.colors.$primary} />
+                <TextInput
+                  placeholder="Nome do Paciente"
+                  value={newAppointment.patient}
+                  onChangeText={(value) => handleInputChange("patient", value)}
+                  flex={1}
+                  marginLeft="sm"
+                />
+              </Box>
+
+              <Box
+                backgroundColor="$fieldInputPlaceholderTextColor"
+                padding="md"
+                borderRadius="sm"
+                flexDirection="row"
+                alignItems="center"
+              >
+                <FeatherIcon name="file" size={20} color={theme.colors.$primary} />
+                <TextInput
+                  placeholderTextColor={"$primary"}
+                  placeholder="Motivo da Consulta"
+                  value={newAppointment.reason}
+                  onChangeText={(value) => handleInputChange("reason", value)}
+                  flex={1}
+                  marginLeft="sm"
+                />
+              </Box>
+            </Box>
+
+            <TouchableOpacity
+              onPress={handleCreateAppointment}
+              style={{
+                backgroundColor: theme.colors.$primary,
+                padding: theme.spacing.md,
+                borderRadius: theme.borderRadii.sm,
+                marginTop: theme.spacing.lg,
+              }}
+            >
+              <Text color="white" textAlign="center" fontSize={16}>
+                Criar Consulta
+              </Text>
+            </TouchableOpacity>
+          </Box>
+
+          <Text variant="navbar" color="$primary" fontSize={20} marginBottom="md">
             Consultas Agendadas
           </Text>
+
           {appointments.map((appointment) => (
             <Box
               key={appointment.id}
-              backgroundColor="white"
-              p="md"
-              borderRadius="md"
-              mb="sm"
+              backgroundColor="$fieldInputBackground"
+              padding="lg"
+              borderRadius="sm"
+              marginBottom="md"
+              shadowColor="$foreground"
+              shadowOffset={{ width: 0, height: 2 }}
+              shadowOpacity={0.1}
+              shadowRadius={8}
+              elevation={3}
             >
-              <Text variant="sidebar" color="black">
-                {`Data: ${new Date(appointment.date).toLocaleDateString(
-                  "pt-BR",
-                  { day: "numeric", month: "long", year: "numeric" }
-                )}`}
-              </Text>
-              <Text variant="sidebar" color="black">
-                {`Tipo de consulta: ${appointment.appointmentType}`}
-              </Text>
-              <Text variant="sidebar" color="black">
-                {`Paciente: ${appointment.patient}`}
-              </Text>
-              <Text variant="sidebar" color="black">
-                {`Motivo: ${appointment.reason}`}
-              </Text>
+              <Box flexDirection="row" alignItems="center" marginBottom="sm">
+                <FeatherIcon name="calendar" size={18} color={theme.colors.$primary} />
+                <Text marginLeft="sm" color="$foreground">
+                  {new Date(appointment.date).toLocaleDateString("pt-BR", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </Text>
+              </Box>
+
+              <Box flexDirection="row" alignItems="center" marginBottom="sm">
+                <FeatherIcon name="clock" size={18} color={theme.colors.$primary} />
+                <Text marginLeft="sm" color="$foreground">
+                  {appointment.appointmentType === "plano" ? "Plano" : "Particular"}
+                </Text>
+              </Box>
+
+              <Box flexDirection="row" alignItems="center" marginBottom="sm">
+                <FeatherIcon name="user" size={18} color={theme.colors.$primary} />
+                <Text marginLeft="sm" color="$foreground">
+                  {appointment.patient}
+                </Text>
+              </Box>
+
+              <Box flexDirection="row" alignItems="center" marginBottom="md">
+                <FeatherIcon name="file" size={18} color={theme.colors.$primary} />
+                <Text marginLeft="sm" color="$foreground">
+                  {appointment.reason}
+                </Text>
+              </Box>
+
               <TouchableOpacity
                 onPress={() => handleDeleteAppointment(appointment.id)}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: theme.spacing.sm,
+                  borderTopWidth: 1,
+                  borderTopColor: theme.colors.$background,
+                  marginTop: theme.spacing.sm,
+                }}
               >
-                <Text
-                  variant="sidebar"
-                  color="red"
-                  textAlign="center"
-                  mt={"md"}
-                >
+                <FeatherIcon name="trash" size={18} color={theme.colors.red} />
+                <Text color="red" marginLeft="sm">
                   Excluir
                 </Text>
               </TouchableOpacity>

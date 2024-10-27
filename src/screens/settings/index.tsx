@@ -1,4 +1,3 @@
-import Container from "@/atoms/container";
 import React, { useCallback } from "react";
 import { FlatList, FlatListProps } from "react-native";
 import {
@@ -49,25 +48,26 @@ const SettingsScreen = () => {
 
   const handleBackPress = useCallback(() => {
     navigation.goBack();
-  }, []);
+  }, [navigation]);
 
   return (
-    <Container>
-      <Box marginBottom={"lg"}>
+    <Box flex={1} backgroundColor="$background">
+      <Box>
         <Box flexDirection="row" alignItems="center" padding="md">
           <TouchableOpacity onPress={handleBackPress}>
-            <FeatherIcon name="arrow-left" size={24} color={"white"} />
+            <FeatherIcon name="arrow-left" size={24} color={"$foreground"} />
           </TouchableOpacity>
           <Text variant="navbar" ml="md">
             Configurações
           </Text>
         </Box>
       </Box>
-      <Box>
+
+      <Box flex={1}>
         <StyledFlatList
           ListHeaderComponent={() => (
             <Box paddingHorizontal="lg" paddingVertical="md">
-              <Text variant="navbar" color="$sidebarForeground">
+              <Text variant="title" color="$primary">
                 Temas
               </Text>
             </Box>
@@ -78,21 +78,21 @@ const SettingsScreen = () => {
           contentContainerStyle={{ paddingBottom: theme.spacing.lg }}
         />
         <Box paddingHorizontal="lg" paddingVertical="md">
-          <Text variant="navbar" color="$sidebarForeground" mb={"md"}>
+          <Text variant="title" color="$primary" mb="md">
             Data
           </Text>
           <Text
             variant="sidebar"
-            color="$sidebarForeground"
+            color="$foreground"
             textAlign="center"
-            mb={"md"}
+            mb="md"
           >
             Clique no botão abaixo para exportar os dados das consultas para um PDF.
           </Text>
           <PDFGenerator appointments={appointments} />
         </Box>
       </Box>
-    </Container>
+    </Box>
   );
 };
 

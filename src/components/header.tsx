@@ -4,6 +4,8 @@ import FeatherIcon from "@/components/icon";
 import { Easing, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { TouchableOpacity } from "@/atoms/touchable";
 import Box from "@/atoms/box";
+import { useTheme } from "@shopify/restyle";
+import { Theme } from "@/themes";
 
 type Props = AnimatedBoxProps & {
   onPress: () => void;
@@ -12,6 +14,7 @@ type Props = AnimatedBoxProps & {
 
 export const HeaderBarLeftButton: React.FC<Props> = (props) => {
   const { onPress, backButtonVisible } = props;
+  const theme = useTheme<Theme>();
 
   const backButtonStyle = useAnimatedStyle(
     () => ({
@@ -21,6 +24,7 @@ export const HeaderBarLeftButton: React.FC<Props> = (props) => {
       opacity: withTiming(backButtonVisible ? 1 : 0, {
         easing: Easing.in(Easing.quad),
       }),
+      color: "white"
     }),
     [backButtonVisible]
   );
