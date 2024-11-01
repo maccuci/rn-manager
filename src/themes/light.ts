@@ -16,14 +16,6 @@ const palette = {
   blue70: '#2185d0',
   navy20: '#171a21',
   navy900: '#b9babc',
-  primary1: "#4A90E2", // Azul profissional
-  secondary1: "#67B8CB", // Azul claro
-  accent1: "#F8F9FA", // Cinza claro
-  text1: "#2C3E50", // Azul escuro
-  background1: "#FFFFFF",
-  success1: "#2ECC71",
-  warning1: "#F1C40F",
-  error1: "#E74C3C",
 };
 
 const theme = createTheme({
@@ -61,15 +53,6 @@ const theme = createTheme({
     $headerBarBackground: palette.paper20,
     $fieldInputBackground: palette.paper00,
     $fieldInputPlaceholderTextColor: palette.paper300,
-
-    primary: palette.primary1, // Azul profissional
-    secondary: palette.secondary1, // Azul claro
-    accent: palette.accent1, // Cinza claro
-    text: palette.text1, // Azul escuro
-    background: palette.background1,
-    success: palette.success1,
-    warning: palette.warning1,
-    error: palette.error1,
   },
   borderRadii: {
     xs: 4,

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { ScrollView, Alert, Platform } from "react-native";
+import { ScrollView, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "@shopify/restyle";
@@ -14,16 +14,28 @@ import Box from "@/atoms/box";
 import TextInput from "@/atoms/text-input";
 import { Appointment, useAppointments } from "@/hooks/useAppointments";
 
+interface FormattedDateTime {
+  date: string;
+  time: string;
+}
+
 export default function AppointmentScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { appointments, addAppointment, loadAppointments, deleteAppointment } = useAppointments();
-  const [newAppointment, setNewAppointment] = useState<Omit<Appointment, "id">>({
-    date: "",
-    appointmentType: "",
-    patient: "",
-    reason: "",
-  });
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { appointments, addAppointment, loadAppointments, deleteAppointment } =
+    useAppointments();
+  const [newAppointment, setNewAppointment] = useState<Omit<Appointment, "id">>(
+    {
+      date: "",
+      time: "",
+      appointmentType: "",
+      patient: "",
+      reason: "",
+    }
+  );
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [selectedDateTime, setSelectedDateTime] = useState(new Date());
   const theme = useTheme();
 
   const handleBackPress = useCallback(() => {
@@ -39,6 +51,7 @@ export default function AppointmentScreen() {
     addAppointment(newAppointment);
     setNewAppointment({
       date: "",
+      time: "",
       appointmentType: "",
       patient: "",
       reason: "",
@@ -48,7 +61,10 @@ export default function AppointmentScreen() {
     loadAppointments();
   };
 
-  const handleInputChange = (field: keyof Omit<Appointment, "id">, value: string) => {
+  const handleInputChange = (
+    field: keyof Omit<Appointment, "id">,
+    value: string
+  ) => {
     setNewAppointment((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -71,26 +87,70 @@ export default function AppointmentScreen() {
     setShowDatePicker(true);
   };
 
+  const showTimePickerHandler = () => {
+    setShowTimePicker(true);
+  };
+
   const onDateChange = (event: any, selectedDate: Date | undefined) => {
+    const currentDateTime = new Date(selectedDateTime);
+
     if (selectedDate) {
-      const localDate = new Date(selectedDate);
-      localDate.setHours(localDate.getHours() + localDate.getTimezoneOffset() / 60);
-  
+      currentDateTime.setFullYear(selectedDate.getFullYear());
+      currentDateTime.setMonth(selectedDate.getMonth());
+      currentDateTime.setDate(selectedDate.getDate());
+
+      setSelectedDateTime(currentDateTime);
       setShowDatePicker(false);
       setNewAppointment((prev) => ({
         ...prev,
-        date: localDate.toISOString().split("T")[0],
+        date: currentDateTime.toISOString(),
       }));
     } else {
       setShowDatePicker(false);
     }
   };
 
+  const onTimeChange = (event: any, selectedTime: Date | undefined) => {
+    const currentDateTime = new Date(selectedDateTime);
+
+    if (selectedTime) {
+      currentDateTime.setHours(selectedTime.getHours());
+      currentDateTime.setMinutes(selectedTime.getMinutes());
+
+      setSelectedDateTime(currentDateTime);
+      setShowTimePicker(false);
+      setNewAppointment((prev) => ({
+        ...prev,
+        date: currentDateTime.toISOString(),
+        time: currentDateTime.toLocaleTimeString(),
+      }));
+    } else {
+      setShowTimePicker(false);
+    }
+  };
+
+  const formatDateTime = (dateString: string): FormattedDateTime | null => {
+    if (!dateString) return null;
+    try {
+      const date = new Date(dateString);
+      return {
+        date: date.toLocaleDateString("pt-BR", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }),
+        time: date.toLocaleTimeString(),
+      };
+    } catch (error) {
+      return null;
+    }
+  };
+
   return (
     <Container flex={1} backgroundColor="$background">
-      <Box 
-        flexDirection="row" 
-        alignItems="center" 
+      <Box
+        flexDirection="row"
+        alignItems="center"
         padding="lg"
         backgroundColor="$primary"
         shadowColor="$foreground"
@@ -120,48 +180,92 @@ export default function AppointmentScreen() {
             shadowRadius={8}
             elevation={3}
           >
-            <Text variant="navbar" color="$primary" fontSize={20} marginBottom="lg">
+            <Text
+              variant="navbar"
+              color="$primary"
+              fontSize={20}
+              marginBottom="lg"
+            >
               Nova Consulta
             </Text>
 
             <Box marginBottom="md">
-              <TouchableOpacity onPress={showDatePickerHandler}>
-                <Box
-                  backgroundColor="$fieldInputPlaceholderTextColor"
-                  padding="md"
-                  borderRadius="sm"
-                  flexDirection="row"
-                  alignItems="center"
-                >
-                  <FeatherIcon name="calendar" size={20} color={theme.colors.$primary} />
-                  <TextInput
-                    placeholder="Selecione a data"
-                    value={
-                      newAppointment.date
-                        ? new Date(newAppointment.date).toLocaleDateString("pt-BR", {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })
-                        : ""
-                    }
-                    editable={false}
-                    flex={1}
-                    marginLeft="sm"
-                  />
-                </Box>
-              </TouchableOpacity>
+              <Box
+                backgroundColor="$fieldInputPlaceholderTextColor"
+                padding="md"
+                borderRadius="sm"
+                marginBottom="md"
+              >
+                <TouchableOpacity onPress={showDatePickerHandler}>
+                  <Box flexDirection="row" alignItems="center">
+                    <FeatherIcon
+                      name="calendar"
+                      size={20}
+                      color={theme.colors.$primary}
+                    />
+                    <TextInput
+                      placeholder="Selecione a data"
+                      value={
+                        newAppointment.date
+                          ? formatDateTime(newAppointment.date)?.date
+                          : ""
+                      }
+                      editable={false}
+                      flex={1}
+                      marginLeft="sm"
+                    />
+                  </Box>
+                </TouchableOpacity>
+              </Box>
+
+              <Box
+                backgroundColor="$fieldInputPlaceholderTextColor"
+                padding="md"
+                borderRadius="sm"
+              >
+                <TouchableOpacity onPress={showTimePickerHandler}>
+                  <Box flexDirection="row" alignItems="center">
+                    <FeatherIcon
+                      name="clock"
+                      size={20}
+                      color={theme.colors.$primary}
+                    />
+                    <TextInput
+                      placeholder="Selecione a hora"
+                      value={
+                        newAppointment.date
+                          ? formatDateTime(newAppointment.date)?.time
+                          : ""
+                      }
+                      editable={false}
+                      flex={1}
+                      marginLeft="sm"
+                    />
+                  </Box>
+                </TouchableOpacity>
+              </Box>
             </Box>
 
             {showDatePicker && (
               <DateTimePicker
-                value={new Date(newAppointment.date || Date.now())}
+                value={selectedDateTime}
                 mode="date"
                 onChange={onDateChange}
               />
             )}
 
-            <Text color="$primary" marginBottom="sm">Tipo de Consulta</Text>
+            {showTimePicker && (
+              <DateTimePicker
+                value={selectedDateTime}
+                mode="time"
+                is24Hour={true}
+                onChange={onTimeChange}
+              />
+            )}
+
+            <Text color="$primary" marginBottom="sm">
+              Tipo de Consulta
+            </Text>
             <Box
               flexDirection="row"
               justifyContent="space-between"
@@ -170,9 +274,10 @@ export default function AppointmentScreen() {
               <TouchableOpacity
                 onPress={() => handleInputChange("appointmentType", "plano")}
                 style={{
-                  backgroundColor: newAppointment.appointmentType === "plano" 
-                    ? theme.colors.$primary 
-                    : theme.colors.$fieldInputPlaceholderTextColor,
+                  backgroundColor:
+                    newAppointment.appointmentType === "plano"
+                      ? theme.colors.$primary
+                      : theme.colors.$fieldInputPlaceholderTextColor,
                   padding: theme.spacing.md,
                   borderRadius: theme.borderRadii.sm,
                   flex: 1,
@@ -181,17 +286,24 @@ export default function AppointmentScreen() {
               >
                 <Text
                   textAlign="center"
-                  color={newAppointment.appointmentType === "plano" ? "white" : "$primary"}
+                  color={
+                    newAppointment.appointmentType === "plano"
+                      ? "white"
+                      : "$primary"
+                  }
                 >
                   Plano
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => handleInputChange("appointmentType", "particular")}
+                onPress={() =>
+                  handleInputChange("appointmentType", "particular")
+                }
                 style={{
-                  backgroundColor: newAppointment.appointmentType === "particular" 
-                    ? theme.colors.$primary 
-                    : theme.colors.$fieldInputPlaceholderTextColor,
+                  backgroundColor:
+                    newAppointment.appointmentType === "particular"
+                      ? theme.colors.$primary
+                      : theme.colors.$fieldInputPlaceholderTextColor,
                   padding: theme.spacing.md,
                   borderRadius: theme.borderRadii.sm,
                   flex: 1,
@@ -200,7 +312,11 @@ export default function AppointmentScreen() {
               >
                 <Text
                   textAlign="center"
-                  color={newAppointment.appointmentType === "particular" ? "white" : "$primary"}
+                  color={
+                    newAppointment.appointmentType === "particular"
+                      ? "white"
+                      : "$primary"
+                  }
                 >
                   Particular
                 </Text>
@@ -216,7 +332,11 @@ export default function AppointmentScreen() {
                 alignItems="center"
                 marginBottom="md"
               >
-                <FeatherIcon name="user" size={20} color={theme.colors.$primary} />
+                <FeatherIcon
+                  name="user"
+                  size={20}
+                  color={theme.colors.$primary}
+                />
                 <TextInput
                   placeholder="Nome do Paciente"
                   value={newAppointment.patient}
@@ -233,7 +353,11 @@ export default function AppointmentScreen() {
                 flexDirection="row"
                 alignItems="center"
               >
-                <FeatherIcon name="file" size={20} color={theme.colors.$primary} />
+                <FeatherIcon
+                  name="file"
+                  size={20}
+                  color={theme.colors.$primary}
+                />
                 <TextInput
                   placeholderTextColor={"$primary"}
                   placeholder="Motivo da Consulta"
@@ -260,7 +384,12 @@ export default function AppointmentScreen() {
             </TouchableOpacity>
           </Box>
 
-          <Text variant="navbar" color="$primary" fontSize={20} marginBottom="md">
+          <Text
+            variant="navbar"
+            color="$primary"
+            fontSize={20}
+            marginBottom="md"
+          >
             Consultas Agendadas
           </Text>
 
@@ -278,7 +407,11 @@ export default function AppointmentScreen() {
               elevation={3}
             >
               <Box flexDirection="row" alignItems="center" marginBottom="sm">
-                <FeatherIcon name="calendar" size={18} color={theme.colors.$primary} />
+                <FeatherIcon
+                  name="calendar"
+                  size={18}
+                  color={theme.colors.$primary}
+                />
                 <Text marginLeft="sm" color="$foreground">
                   {new Date(appointment.date).toLocaleDateString("pt-BR", {
                     day: "numeric",
@@ -289,21 +422,46 @@ export default function AppointmentScreen() {
               </Box>
 
               <Box flexDirection="row" alignItems="center" marginBottom="sm">
-                <FeatherIcon name="clock" size={18} color={theme.colors.$primary} />
+                <FeatherIcon
+                  name="clock"
+                  size={18}
+                  color={theme.colors.$primary}
+                />
                 <Text marginLeft="sm" color="$foreground">
-                  {appointment.appointmentType === "plano" ? "Plano" : "Particular"}
+                  {formatDateTime(appointment.date)?.time}
                 </Text>
               </Box>
 
               <Box flexDirection="row" alignItems="center" marginBottom="sm">
-                <FeatherIcon name="user" size={18} color={theme.colors.$primary} />
+                <FeatherIcon
+                  name="clock"
+                  size={18}
+                  color={theme.colors.$primary}
+                />
+                <Text marginLeft="sm" color="$foreground">
+                  {appointment.appointmentType === "plano"
+                    ? "Plano"
+                    : "Particular"}
+                </Text>
+              </Box>
+
+              <Box flexDirection="row" alignItems="center" marginBottom="sm">
+                <FeatherIcon
+                  name="user"
+                  size={18}
+                  color={theme.colors.$primary}
+                />
                 <Text marginLeft="sm" color="$foreground">
                   {appointment.patient}
                 </Text>
               </Box>
 
               <Box flexDirection="row" alignItems="center" marginBottom="md">
-                <FeatherIcon name="file" size={18} color={theme.colors.$primary} />
+                <FeatherIcon
+                  name="file"
+                  size={18}
+                  color={theme.colors.$primary}
+                />
                 <Text marginLeft="sm" color="$foreground">
                   {appointment.reason}
                 </Text>
@@ -312,9 +470,9 @@ export default function AppointmentScreen() {
               <TouchableOpacity
                 onPress={() => handleDeleteAppointment(appointment.id)}
                 style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
                   padding: theme.spacing.sm,
                   borderTopWidth: 1,
                   borderTopColor: theme.colors.$background,

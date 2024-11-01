@@ -11,9 +11,6 @@ type Props = {
 const ResponsiveLayout: React.FC<Props> = props => {
   const { isTablet } = useResponsiveLayout()
   const { renderOnTablet, renderOnPhone, onLayoutChange } = props
-  // may return nothing:
-  // 1. renderOnWide set but we have narrow layout
-  // 2. renderOnNarrow set but we have wide layout
   let children: React.ReactElement<any, any> | null = null
 
   if (isTablet === true && renderOnTablet) {

@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export interface Appointment {
   id: string;
   date: string;
+  time: string;
   appointmentType: string;
   patient: string;
   reason: string;

@@ -8,7 +8,7 @@ import {
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { LineChart, PieChart } from "react-native-chart-kit";
-import { format } from "date-fns";
+import { format, formatDistance } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useTheme } from "@shopify/restyle";
 import Container from "@/atoms/container";
@@ -103,6 +103,36 @@ export default function MobileMainScreen() {
       (apt) => new Date(apt.date).setHours(0, 0, 0, 0) === today
     );
   }, [appointments]);
+
+  const getNextAppointment = useCallback(() => {
+    const now = new Date();
+    const upcoming = appointments
+      .filter((apt) => new Date(apt.date) > now)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    return upcoming[0];
+  }, [appointments]);
+
+  const formatNextAppointment = useCallback(() =>{
+    const next = getNextAppointment();
+
+    if(!next) {
+      return {
+        time: "Sem consultas",
+        distance: "---"
+      }
+    }
+
+    const date = new Date(next.date);
+
+    return {
+      time: format(date, "dd/MM - HH:mm"),
+      distance: formatDistance(date, new Date(), {
+        locale: ptBR,
+        addSuffix: true
+      })
+    }
+  }, [getNextAppointment])
 
   return (
     <Container backgroundColor="$background" flex={1}>
@@ -229,7 +259,10 @@ export default function MobileMainScreen() {
                 Próxima Consulta
               </Text>
               <Text color="$primary" fontSize={16} fontWeight="600">
-                {format(new Date(), "HH:mm")}
+                {formatNextAppointment().time}
+              </Text>
+              <Text color="$primary" fontSize={16} fontWeight="600">
+                {formatNextAppointment().distance}
               </Text>
             </Box>
           </Box>
